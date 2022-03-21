@@ -8,12 +8,6 @@
     <title>Document</title>
 </head>
 <body>
-<form method="post">
-    <label for="username">Username</label>
-    <input id="username" type="text" name="username" required />
-    <label for="password">Password</label>
-    <input id="password" type="password" name="password" required />
-    <button type="submit">Se connecter</button>
-</form>
+<h1>Homepage</h1>
 </body>
 </html>
