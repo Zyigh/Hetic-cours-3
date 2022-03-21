@@ -8,6 +8,12 @@
     <title>Hetic cours 3</title>
 </head>
 <body>
+<!-- On affiche le button logout si un utilisateur est connecté -->
+<?php if (isset($_SESSION['user'])): ?>
+<a href="/logout">
+    <button>Se déconnecter</button>
+</a>
+<?php endif ?>
 <?= $content ?>
 </body>
 </html>

@@ -1,4 +1,6 @@
 <?php
+// Démarre une session
+session_start();
 // Point d'entrée de l'application
 // Le fichier .htaccess va permettre de dire à Apache pour chaque requête
 // "Si le fichier existe -> renvoie le"

@@ -31,7 +31,6 @@ function findUser(string $username, string $password, \PDO $pdo): array {
     if ($result = $stmt->fetch()) {
         return array_merge([
             'username' => $username,
-            'password' => $password
         ], $result);
     }
 

@@ -1,7 +1,12 @@
 <?php
-
 // On récupère la connexion à la base de donnée de manière globale
 require_once __DIR__ . '/database/connexion.php';
+
+// L'utilisateur est stocké dans la session
+// la session est représentée par le tableau $_SESSION
+// On stockera l'utilisateur à l'index user, donc il sera accessible à l'index user
+$user = $_SESSION['user'] ?? null;
+//var_dump($_SESSION);
 
 // Le path correspond à toute la partie de l'url à partir du "/"
 // Sans prendre en compte les paramètres
@@ -17,28 +22,44 @@ $method = $_SERVER['REQUEST_METHOD'];
 ob_start();
 // On gère dans un premier temps les routes en GET
 if ($method === 'GET') {
+    require_once __DIR__ . '/logic/homepage.php';
     $title = '';
-    $fileToRequire = null;
+    $pageExists = false;
 
     // Le switch va gérer toutes nos routes que l'on définit (en GET)
     // On va définir la page à require pour l'écrire dans le buffer
     switch ($path) {
         case '/login':
+            $pageExists = true;
             $title = 'Log in';
-            $fileToRequire = "/views/login-form.php";
+            $loginOrSignIn = '/signin';
+            require_once __DIR__ . "/views/login-form.php";
             break;
         case '/signin':
+            $pageExists = true;
             $title = 'Sign in';
-            $fileToRequire = "/views/login-form.php";
+            $loginOrSignIn = '/login';
+            require_once __DIR__ . "/views/login-form.php";
             break;
         case '/':
-            $fileToRequire = '/views/home.php';
+            $pageExists = true;
+            if (null === $user) {
+                header('Location: /login');
+                exit;
+            }
+            echo getHomepage($pdo);
+
             break;
+        case '/logout':
+            // On détruit la session, c'est à dire qu'on vide le tableau $_SESSION
+            session_destroy();
+            header('Location: /');
+            exit;
     }
 
     // Si rien n'a été définit comme page à afficher, alors la route n'existe pas
     // On montre donc notre page d'erreur 404 => NOT FOUND
-    if (null === $fileToRequire) {
+    if (!$pageExists) {
         // Pour définir le status code de la réponse
         // voir https://twitter.com/stevelosh/status/372740571749572610?lang=fr
         // ou https://http.cat/
@@ -46,28 +67,28 @@ if ($method === 'GET') {
         http_response_code(404);
         $fileToRequire = "/views/exceptions/404.php";
     }
-
-    // On require un fichier qui ne contient que du html, donc il est considéré comme "à afficher"
-    // On écrira ce contenu dans le buffer
-    require_once __DIR__ . $fileToRequire;
-
 // On gère maintenant les routes en POST
 } else if ($method === 'POST') {
     // Les fichiers dont on va avoir besoin
     require_once __DIR__ . '/logic/validateUsernameAndPassword.php';
     require_once __DIR__ . '/database/login.php';
     require_once __DIR__ . '/database/signIn.php';
+    require_once __DIR__ . '/database/tweet.php';
 
     // Notre code va lever des exceptions qui nous donnera des infos sur le code HTTP à renvoyer
     try {
         switch ($path) {
+            case '/tweet':
+                addTweet($_POST['tweet'], $pdo);
+                header('Location: /');
+                exit;
             case '/login':
                 // On valide la requête avec la fonction validateUsernameAndPassword
                 // Elle renvoie un tableau contenant le username et le password qu'on récupère avec la fonction list
                 list($username, $password) = validateUsernameAndPassword($_POST);
                 // On va chercher l'utilisateur
                 // La méthode peut lever des Exceptions dans différents cas
-                findUser($username, $password, $pdo);
+                $_SESSION['user'] = findUser($username, $password, $pdo);
                 header('Location: /');
                 exit;
             case '/signin':
