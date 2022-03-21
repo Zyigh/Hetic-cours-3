@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * Va chercher un user par rapport à un username et un password dans une DB accessible via $pdo
+ * Lève une Exception si la requête ne fonctionne pas, ou si aucun utilisateur n'a été trouvé
+ * Renvoie un tableau contenant l'id, le name et le pwd du user
+ *
  * @param string $username
  * @param string $password
  * @return array

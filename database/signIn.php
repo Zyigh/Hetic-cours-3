@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * Crée un user en base de données, lève une exception si ça ne fonctionne pas
+ *
  * @param string $username
  * @param string $password
  * @throws \Exception
